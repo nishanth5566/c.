@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#define MAX 10
+
+struct Vertex {
+    char label;
+    bool visited;
+};
+
+// Graph variables
+struct Vertex* lstVertices[MAX];
+int adjMatrix[MAX][MAX]; // Adjacency matrix
+int vertexCount = 0;     // Vertex count
+
+void addVertex(char label) {
+    struct Vertex* vertex = (struct Vertex*)malloc(sizeof(struct Vertex));
+    vertex->label = label;
+    vertex->visited = false;
+    lstVertices[vertexCount++] = vertex;
+}
+
+void addEdge(int start, int end) {
+    adjMatrix[start][end] = 1;
+    adjMatrix[end][start] = 1;
+}
+
+void displayVertex(int vertexIndex) {
+    printf("%c ", lstVertices[vertexIndex]->label);
+}
+
+void depthFirstSearch(int vertexIndex) {
+    displayVertex(vertexIndex);
+    lstVertices[vertexIndex]->visited = true;
+
+    for (int i = 0; i < vertexCount; i++) {
+        if (adjMatrix[vertexIndex][i] == 1 && !lstVertices[i]->visited) {
+            depthFirstSearch(i);
+        }
+    }
+}
+
+int main() {
+    int numVertices, edges, start, end;
+
+    printf("Enter the number of vertices (max %d): ", MAX);
+    scanf("%d", &numVertices);
+
+    for (int i = 0; i < numVertices; i++) {
+        char label;
+        printf("Enter label for vertex %d: ", i);
+        scanf(" %c", &label);
+        addVertex(label);
+    }
+
+    printf("Enter the number of edges: ");
+    scanf("%d", &edges);
+
+    for (int i = 0; i < edges; i++) {
+        printf("Enter edge (start end): ");
+        scanf("%d %d", &start, &end);
+        addEdge(start, end);
+    }
+
+    printf("\nDepth-First Search: ");
+    for (int i = 0; i < vertexCount; i++) {
+        if (!lstVertices[i]->visited) {
+            depthFirstSearch(i);
+        }
+    }
+
+    return 0;
+}
