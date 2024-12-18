@@ -1,0 +1,118 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#define MAX 10
+
+struct Vertex {
+    char label;
+    bool visited;
+};
+
+// Queue variables
+int queue[MAX];
+int rear = -1;
+int front = 0;
+int queueItemCount = 0;
+
+// Graph variables
+struct Vertex* lstVertices[MAX];
+int adjMatrix[MAX][MAX]; // Adjacency matrix
+int vertexCount = 0;     // Vertex count
+
+// Queue functions
+void insert(int data) {
+    queue[++rear] = data;
+    queueItemCount++;
+}
+
+int removeData() {
+    queueItemCount--;
+    return queue[front++];
+}
+
+bool isQueueEmpty() {
+    return queueItemCount == 0;
+}
+
+// Graph functions
+void addVertex(char label) {
+    struct Vertex* vertex = (struct Vertex*)malloc(sizeof(struct Vertex));
+    vertex->label = label;
+    vertex->visited = false;
+    lstVertices[vertexCount++] = vertex;
+}
+
+void addEdge(int start, int end) {
+    adjMatrix[start][end] = 1;
+    adjMatrix[end][start] = 1;
+}
+
+void displayVertex(int vertexIndex) {
+    printf("%c ", lstVertices[vertexIndex]->label);
+}
+
+int getAdjUnvisitedVertex(int vertexIndex) {
+    for (int i = 0; i < vertexCount; i++) {
+        if (adjMatrix[vertexIndex][i] == 1 && !lstVertices[i]->visited) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void breadthFirstSearch() {
+    int i;
+
+    // Mark the first node as visited
+    lstVertices[0]->visited = true;
+    displayVertex(0);
+
+    // Insert vertex index in the queue
+    insert(0);
+
+    int unvisitedVertex;
+
+    while (!isQueueEmpty()) {
+        int tempVertex = removeData();
+
+        while ((unvisitedVertex = getAdjUnvisitedVertex(tempVertex)) != -1) {
+            lstVertices[unvisitedVertex]->visited = true;
+            displayVertex(unvisitedVertex);
+            insert(unvisitedVertex);
+        }
+    }
+
+    // Reset the visited flag for all vertices
+    for (i = 0; i < vertexCount; i++) {
+        lstVertices[i]->visited = false;
+    }
+}
+
+int main() {
+    int numVertices, edges, start, end;
+
+    printf("Enter the number of vertices (max %d): ", MAX);
+    scanf("%d", &numVertices);
+
+    for (int i = 0; i < numVertices; i++) {
+        char label;
+        printf("Enter label for vertex %d: ", i);
+        scanf(" %c", &label);
+        addVertex(label);
+    }
+
+    printf("Enter the number of edges: ");
+    scanf("%d", &edges);
+
+    for (int i = 0; i < edges; i++) {
+        printf("Enter edge (start end): ");
+        scanf("%d %d", &start, &end);
+        addEdge(start, end);
+    }
+
+    printf("\nBreadth-First Search: ");
+    breadthFirstSearch();
+
+    return 0;
+}
